@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: USER
+Build-Jdk: 11.0.1
+Implementation-Title: repo
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: com.yoonho
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-boot
+ -starter-parent/repo
+Created-By: Maven Integration for Eclipse
+
