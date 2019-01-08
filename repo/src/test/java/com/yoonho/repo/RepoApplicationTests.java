@@ -4,10 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -146,6 +152,7 @@ public class RepoApplicationTests {
 		 */
 	}
 	
+	@Ignore
 	@Test
 	public void imgCompressionTest() throws Exception{
 		// Local에 있는 compression.jpeg를 읽어오는 부분
@@ -181,6 +188,46 @@ public class RepoApplicationTests {
 		g.dispose();
 		
 		return result;
+	}
+	
+	
+	@Test
+	public void getMergedImageTest() throws Exception{
+		String image_url = "http://localhost:8080/repo/getMergedImage";
+		try {
+			URL url = new URL(image_url);
+			HttpURLConnection con = (HttpURLConnection)url.openConnection();
+			con.setRequestMethod("GET");
+			int responseCode = con.getResponseCode();
+			BufferedReader reader = null;
+			if(responseCode == 200) {
+				InputStream input = con.getInputStream();
+				int read = 0;
+				byte[] bytes = new byte[1024];
+				
+				Random random = new Random();
+				String fileName = random.nextInt(10000) + ""; 
+				File file = new File(fileName + ".jpeg");
+				file.createNewFile();
+				
+				OutputStream output = new FileOutputStream(file);
+				while( (read = input.read(bytes)) != -1 ) {
+					output.write(bytes, 0, read);
+				}
+				input.close();
+			}else {
+				reader = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				while( (inputLine = reader.readLine()) != null ) {
+					response.append(inputLine);
+				}
+				reader.close();
+				System.out.println(response.toString());
+			}
+		}catch(Exception e) {
+			System.out.println(e);
+		}
 	}
 }
 
