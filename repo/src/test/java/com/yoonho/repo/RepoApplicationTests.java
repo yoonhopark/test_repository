@@ -2,10 +2,22 @@ package com.yoonho.repo;
 
 import static org.junit.Assert.assertEquals;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,9 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.yoonho.repo.config.*;
 
 import redis.clients.jedis.Jedis;
+
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -70,7 +87,7 @@ public class RepoApplicationTests {
 //		assertEquals(browserInfo_value_font, jedis.hget(browserKey_fromJedis, "font"));
 	}
 
-	
+	@Ignore
 	@Test
 	public void redisAsixTest() throws Exception{
 		Jedis jedis = redisConfig.getJedis();
@@ -129,6 +146,41 @@ public class RepoApplicationTests {
 		 */
 	}
 	
+	@Test
+	public void imgCompressionTest() throws Exception{
+		// Local에 있는 compression.jpeg를 읽어오는 부분
+		String url = "C:\\Users\\USER\\git\\test_repository\\repo";
+		String imgName = "compression.jpeg";
+		File inputFile = new File(url, imgName);
+		InputStream in = new FileInputStream(inputFile);
+		BufferedImage img = ImageIO.read(in);
+		
+		Random random = new Random();
+		String fileName = random.nextInt(10000) + "";
+		
+		File file = new File(fileName + ".jpeg");
+		
+		// File압축을 위해 별도로 파라미터를 설정하는 부분
+		ImageWriter wr = ImageIO.getImageWritersByFormatName("jpeg").next();
+		ImageWriteParam wrParam = wr.getDefaultWriteParam();
+		wrParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		wrParam.setCompressionQuality(0.0f);
+//		wrParam.setCompressionQuality(0.2f);
+//		wrParam.setCompressionQuality(0.3f);
+//		wrParam.setCompressionQuality(1.0f);
+		
+		wr.setOutput(ImageIO.createImageOutputStream(file));
+		IIOImage io = new IIOImage(img, null, null);
+		wr.write(null, io, wrParam);
+	}
 	
+	public BufferedImage getReverseColor(BufferedImage img) throws Exception{
+		BufferedImage result = new BufferedImage(300, 300, img.TYPE_BYTE_GRAY);
+		Graphics2D g = result.createGraphics();
+		g.drawImage(img, 0,0, null);
+		g.dispose();
+		
+		return result;
+	}
 }
 
